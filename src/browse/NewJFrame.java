@@ -44,7 +44,7 @@ public class NewJFrame extends javax.swing.JFrame
     int a=0;
     String files;
     //target file
-    String target = "E:/File Skripsi/program/check1/build/classes/browse/";
+    String target = "E:/File Skripsi/program/check1/src/browse/";
     
     JFileChooser fileChooser = new JFileChooser();
     
@@ -67,6 +67,8 @@ public class NewJFrame extends javax.swing.JFrame
                 File[] ll=selectedFile.listFiles();
                 System.out.println("Selected file: " + selectedFile.getAbsolutePath());
                 jTextField1.setText(selectedFile.getAbsolutePath());
+                
+                //Copy File
                 /*for (int i = 0; i < ll.length; i++) 
                 {
                     if (ll[i].isFile()) 
@@ -74,10 +76,14 @@ public class NewJFrame extends javax.swing.JFrame
                         files = ll[i].getName();
                         File source = new File(ll[i].getPath());
                         File destination = new File(target + files);
-                        try{
-                        FileUtils.copyFile(source, destination);
-                        
-                        }catch(Exception aa){
+                        try
+                        {
+                        if (files.endsWith(".class"))
+	                        {
+		                        FileUtils.copyFile(source, destination);
+	                        }
+                        }
+                        catch(Exception aa){
                             System.out.println("salah");
                         }
                         
@@ -91,37 +97,24 @@ public class NewJFrame extends javax.swing.JFrame
                         
                         //jTextArea3.append(files+"\t"+filesizeInKB+" KB\n");
                            if (files.endsWith(".class"))
-			    {
+			    			{
                                 StringTokenizer st=new StringTokenizer(files, ".");
                                 String nama=st.nextToken();
                                 
                                 System.out.println();
                                 jTextArea1.append("Nama Kelas = "+nama + "\n");
                                 
+                                
+                                
                                 try
                                 {
                                 String m1="";
                                 String m2a="";
                                 String m3a="";
-                                StringBuilder s = new StringBuilder();
-                                Formatter fm = new Formatter(s);
-
-                                StringBuilder s2 = new StringBuilder();
-                                Formatter fm2 = new Formatter(s2);
-
-                                StringBuilder s3 = new StringBuilder();
-                                Formatter fm3 = new Formatter(s3);
+                                
                                 
                                 Class cls = Class.forName(nama);
-                                Class<?> cls2= cls.getSuperclass();
-                                Class<?> cls3=cls2.getSuperclass();
-                                
-                                
                                 Method methlist[]= cls.getDeclaredMethods();
-                                
-                                Method methlist3[]= cls3.getDeclaredMethods();
-                                
-                                
                                 for (int n = 0; n < methlist.length;n++)
                                 {  
                                     Method m = methlist[n];
@@ -133,23 +126,20 @@ public class NewJFrame extends javax.swing.JFrame
                                     m1=m1+m.getName()+", ";
                                 }
                                 
+                                jTextArea1.append("Nama Method = " + m1+"\n");
+                                jTextArea1.append("Jumlah Method = " + methlist.length+"\n");
+                                
                                 Field[] fields = cls.getDeclaredFields();
+                                int att_1=0;
                                 for (Field field : fields) 
                                 {
                                         //Cetak Nama Attribute Kelas Lokal
-                                        //System.out.println("Nama Attribute = "+field.getName());
+                                        att_1++;
                                         jTextArea1.append("Nama Attribute = "+field.getName()+"\n");
                                 }
+                                jTextArea1.append("Jumlah Attribut = "+fields.length+"\n");
                                 
-                                         
-                                /*try
-                                {
-                                    
-                                }
-                                catch(Exception e)
-                                {
-                                    
-                                }*/
+                                Class<?> cls2= cls.getSuperclass();
                                 Method methlist2[]= cls2.getDeclaredMethods();
                                 for (int j=0;j<methlist2.length; j++)
                                 {
@@ -164,15 +154,12 @@ public class NewJFrame extends javax.swing.JFrame
                                 jTextArea2.append("Nama Super Kelas dari "+cls.getName() +" adalah "+cls2.getName()+"\n");
                                 
                                 Field[] fields2 = cls2.getDeclaredFields();
-                                
                                 int con=0;
                                 for (Field field : fields2) 
                                 {
-                                    
                                     if (field.toString().contains("private"))
                                         {
                                             continue;
-                                            //jTextArea2.append("INI PRIVATE");
                                         }
                                     con++;
                                     jTextArea2.append("Nama Attribute yang diwariskan= "+field.getName()+"\n");
@@ -180,7 +167,8 @@ public class NewJFrame extends javax.swing.JFrame
                                  }
                                 jTextArea2.append("Jumlah Attribut Yang diwariskan = "+con+"\n");
                                 
-                                //list method kelas nenek moyang
+                                Class<?> cls3=cls2.getSuperclass();
+                                Method methlist3[]= cls3.getDeclaredMethods();
                                 for (int k=0;k<methlist3.length; k++)
                                 {
                                     Method m3 = methlist3[k];
@@ -207,10 +195,9 @@ public class NewJFrame extends javax.swing.JFrame
                                     //continue;
                                 }
                                 
-                            //   if(cls2.g)
-                            jTextArea1.append("Jumlah Attribut = "+fields.length+"\n");
-                            jTextArea1.append("Jumlah Method = " + methlist.length+"\n");
-                            jTextArea1.append("Nama Method = " + m1+"\n");
+                            
+                            
+                            
                             jTextArea1.append(batas);
                             
                             if(cls2.getName().contains("java.lang.Object"))
@@ -231,14 +218,9 @@ public class NewJFrame extends javax.swing.JFrame
                                     jTextArea3.append("Jumlah Method = " + methlist3.length+"\n");
                                     jTextArea3.append("Nama Method = " + m3a+"\n");
                                     jTextArea3.append("Jumlah Attribut Yang diwariskan = "+fields3.length+"\n");
-                                    jTextArea3.append("Nama Attribute Yang diwariskan = "+s3.toString());
+//                                    jTextArea3.append("Nama Attribute Yang diwariskan = "+s3.toString());
                                     jTextArea3.append(batas);
-                                
-                                    
-                            
-                            s2.setLength(0);
-                            s3.setLength(0);
-
+                  
                             //System.out.println("Nama Attribute " + fields.toString());
                             System.out.println("Julmah Attribute = "+fields.length);
                             System.out.println("Nama Method = " + m1);
@@ -294,7 +276,11 @@ public class NewJFrame extends javax.swing.JFrame
         jButton1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jButton1.setText("jButton1");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(java.awt.event.ActionEvent evt) 
+            {
+            	jTextArea1.setText("");
+            	jTextArea2.setText("");
+            	jTextArea3.setText("");
                 jButton1ActionPerformed(evt);
             }
         });
