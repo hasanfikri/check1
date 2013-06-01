@@ -56,8 +56,8 @@ public class NewJFrame extends javax.swing.JFrame
         initComponents();
         
     }
-    private void showOpenFileDialog() 
-    	  	{
+private void showOpenFileDialog() 
+{
     	fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int result = fileChooser.showOpenDialog(this);
@@ -69,7 +69,8 @@ public class NewJFrame extends javax.swing.JFrame
                 jTextField1.setText(selectedFile.getAbsolutePath());
                 
                 //Copy File
-                /*for (int i = 0; i < ll.length; i++) 
+                int atribut_parent = 0;
+                for (int i = 0; i < ll.length; i++) 
                 {
                     if (ll[i].isFile()) 
                     {
@@ -78,17 +79,14 @@ public class NewJFrame extends javax.swing.JFrame
                         File destination = new File(target + files);
                         try
                         {
-                        if (files.endsWith(".class"))
-	                        {
-		                        FileUtils.copyFile(source, destination);
-	                        }
-                        }
+                            FileUtils.copyFile(source, destination);
+	                }
                         catch(Exception aa){
                             System.out.println("salah");
                         }
                         
                     }
-                }*/
+                }
         	for (int i = 0; i < ll.length; i++) 
                 {
                     if (ll[i].isFile()) 
@@ -97,153 +95,169 @@ public class NewJFrame extends javax.swing.JFrame
                         
                         //jTextArea3.append(files+"\t"+filesizeInKB+" KB\n");
                            if (files.endsWith(".class"))
-			    			{
+                           {
                                 StringTokenizer st=new StringTokenizer(files, ".");
                                 String nama=st.nextToken();
                                 
                                 System.out.println();
                                 jTextArea1.append("Nama Kelas = "+nama + "\n");
                                 
+                                Class cls = null;
+                                Class<?> cls2 = null;
+                                Class<?> cls3 = null;
+                                try
+                                {
+                                    String m1="";
+                                    
+                                    
+                                    cls = Class.forName(nama);
+                                    Method methlist[]= cls.getDeclaredMethods();
+                                    for (int n = 0; n < methlist.length;n++)
+                                    {  
+                                        Method m = methlist[n];
+                                        //Memfilter method yng mengandung string "java."
+                                        if (m.toString().contains("java."))
+                                        {
+                                           continue;
+                                        }
+                                        m1=m1+m.getName()+", ";
+                                    }
+                                    jTextArea1.append("Nama Method = " + m1+"\n");
+                                    jTextArea1.append("Jumlah Method = " + methlist.length+"\n");
+
+                                    Field[] fields = cls.getDeclaredFields();
+                                    int att_1=0;
+                                    for (Field field : fields) 
+                                    {
+                                            //Cetak Nama Attribute Kelas Lokal
+                                            att_1++;
+                                            jTextArea1.append("Nama Attribute = "+field.getName()+"\n");
+                                    }
+                                    jTextArea1.append("Jumlah Attribut = "+fields.length+"\n");   
+                                    jTextArea1.append(batas);
+                                }
+                                catch (Exception e) 
+                                {
+                                   jTextArea1.append(att_kosong+"\n"+mtd_kosong+batas);
+                                } 
                                 
                                 
                                 try
                                 {
-                                String m1="";
-                                String m2a="";
-                                String m3a="";
-                                
-                                
-                                Class cls = Class.forName(nama);
-                                Method methlist[]= cls.getDeclaredMethods();
-                                for (int n = 0; n < methlist.length;n++)
-                                {  
-                                    Method m = methlist[n];
-                                    //Memfilter method yng mengandung string "java."
-                                    if (m.toString().contains("java."))
+                                    String m2a="";
+                                    cls2 = cls.getSuperclass();
+                                    Method methlist2[]= cls2.getDeclaredMethods();
+                                    atribut_parent = atribut_parent + methlist2.length;
+                                    for (int j=0;j<methlist2.length; j++)
                                     {
-                                       continue;
-                                    }
-                                    m1=m1+m.getName()+", ";
-                                }
-                                
-                                jTextArea1.append("Nama Method = " + m1+"\n");
-                                jTextArea1.append("Jumlah Method = " + methlist.length+"\n");
-                                
-                                Field[] fields = cls.getDeclaredFields();
-                                int att_1=0;
-                                for (Field field : fields) 
-                                {
-                                        //Cetak Nama Attribute Kelas Lokal
-                                        att_1++;
-                                        jTextArea1.append("Nama Attribute = "+field.getName()+"\n");
-                                }
-                                jTextArea1.append("Jumlah Attribut = "+fields.length+"\n");
-                                
-                                Class<?> cls2= cls.getSuperclass();
-                                Method methlist2[]= cls2.getDeclaredMethods();
-                                for (int j=0;j<methlist2.length; j++)
-                                {
-                                    Method m2 = methlist2[j];
-                                    //Memfilter method yng mengandung string "private."
-                                    if (m2.toString().contains("private"))
-                                    {
-                                        continue;
-                                    }
-                                    m2a=m2a+(m2.getName()+", ");
-                                }   
-                                jTextArea2.append("Nama Super Kelas dari "+cls.getName() +" adalah "+cls2.getName()+"\n");
-                                
-                                Field[] fields2 = cls2.getDeclaredFields();
-                                int con=0;
-                                for (Field field : fields2) 
-                                {
-                                    if (field.toString().contains("private"))
+                                        Method m2 = methlist2[j];
+                                        //Memfilter method yng mengandung string "private."
+                                        if (m2.toString().contains("private"))
                                         {
                                             continue;
                                         }
-                                    con++;
-                                    jTextArea2.append("Nama Attribute yang diwariskan= "+field.getName()+"\n");
-                                    
-                                 }
-                                jTextArea2.append("Jumlah Attribut Yang diwariskan = "+con+"\n");
-                                
-                                Class<?> cls3=cls2.getSuperclass();
-                                Method methlist3[]= cls3.getDeclaredMethods();
-                                for (int k=0;k<methlist3.length; k++)
-                                {
-                                    Method m3 = methlist3[k];
-                                    if (m3.getName().contains("private"))
+                                        m2a=m2a+(m2.getName()+", ");
+                                    }   
+                                    if(cls2.getName().contains("java.lang.Object"))
                                     {
-                                       continue;
+                                        
                                     }
                                     else
+                                    jTextArea2.append("Nama Super Kelas dari "+cls.getName() +" adalah "+cls2.getName()+"\n");
+
+                                    Field[] fields2 = cls2.getDeclaredFields();
+                                    int con=0;
+                                    for (Field field : fields2) 
                                     {
-                                    m3a=m3a+(m3.getName()+" ");
-                                    }
-                                }
-                                if(m3a.length()==0)
-                                {
+                                        if (field.toString().contains("private"))
+                                            {
+                                                continue;
+                                            }
+                                        con++;
+                                        jTextArea2.append("Nama Attribute yang diwariskan= "+field.getName()+"\n");
+                                    } 
                                     
-                                }
-                                Field[] fields3 = cls3.getDeclaredFields();
-                                for (Field field : fields3) 
-                                {
-                                        jTextArea3.append("Nama Attribute = "+field.getName()+"\n");
-                                }
-                                if(fields3.length==0)
-                                {
-                                    //continue;
-                                }
-                                
-                            
-                            
-                            
-                            jTextArea1.append(batas);
-                            
-                            if(cls2.getName().contains("java.lang.Object"))
-                                {
-                                    continue;
-                                }
-                                    //jTextArea2.append("Jumlah Attribut Yang diwariskan = "+fields2.length+"\n");
+                                    if(cls2.getName().contains("java.lang.Object"))
+                                    {
+                                        continue;
+                                    }
+                                    
+                                    
                                     jTextArea2.append("Jumlah Method Yang Di wariskan = " + methlist2.length+"\n");
                                     jTextArea2.append("Nama Method Yang Di wariskan = " + m2a+"\n");
+                                    jTextArea2.append("Jumlah Attribut Yang diwariskan = "+con+"\n");
                                     jTextArea2.append(batas);
-                            
-                            if(cls3.getName().contains("java.lang.Object"))
-                                {
-                                    continue;
+                                
                                 }
-                            
-                                    jTextArea3.append("Nama Kelas = "+cls3.getName()+"\n");
-                                    jTextArea3.append("Jumlah Method = " + methlist3.length+"\n");
+                                catch (Exception e) 
+                                {
+                                jTextArea2.append(att_kosong+"\n"+mtd_kosong+batas);
+                                
+                                
+                                } 
+                                
+                                try
+                                {
+                                    String m3a="";
+                                    cls3=cls2.getSuperclass();
+                                    
+                                    if(cls3.getName().contains("java.lang.Object"))
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    jTextArea3.append("Nama Super Kelas dari "+cls2.getName() +" adalah "+cls3.getName()+"\n");
+                                    Method methlist3[]= cls3.getDeclaredMethods();
+                                    atribut_parent = atribut_parent + methlist3.length;
+                                    for (int k=0;k<methlist3.length; k++)
+                                    {
+                                        Method m3 = methlist3[k];
+                                        if (m3.getName().contains("private"))
+                                        {
+                                           continue;
+                                        }
+                                        else
+                                        {
+                                        m3a=m3a+(m3.getName()+" ");
+                                        }
+                                    }
+                                    
                                     jTextArea3.append("Nama Method = " + m3a+"\n");
-                                    jTextArea3.append("Jumlah Attribut Yang diwariskan = "+fields3.length+"\n");
-//                                    jTextArea3.append("Nama Attribute Yang diwariskan = "+s3.toString());
+                                    jTextArea3.append("Jumlah Method = " + methlist3.length+"\n");
+
+                                    Field[] fields3 = cls3.getDeclaredFields();
+                                    int con_3=0;
+                                    for (Field field : fields3) 
+                                    {
+                                    	if (field.toString().contains("private"))
+                                            {
+                                                continue;
+                                            }
+                                            jTextArea3.append("Nama Attribute = "+field.getName()+"\n");
+                                            con_3++;
+                                    }
+                                    jTextArea3.append("Jumlah Attribut Yang diwariskan = "+con_3+"\n");
                                     jTextArea3.append(batas);
-                  
-                            //System.out.println("Nama Attribute " + fields.toString());
-                            System.out.println("Julmah Attribute = "+fields.length);
-                            System.out.println("Nama Method = " + m1);
-                            System.out.println("Jumlah Method = " + methlist.length);
-                            
-                            
-                            //System.out.println("Nama Attribute = "+field.getN);
-                            
-				        //System.out.println("Total Method = " + MthdLen);   //Panjang Nama Method Keseluruhan
-				        
-				}
+                                   
+                                    
+                                }
+                                //jTextArea3.append("Nama Attribute Yang diwariskan = "+s3.toString());
+                                
+                                
                                 catch (Exception e) 
                                  {
-                                   //System.err.println(e.toString());
-                                    jTextArea1.append(att_kosong+"\n"+mtd_kosong+batas);
-                                    System.out.println("jml met kosong");
-                                    System.out.println("jml att kosong");
-                                 } 
+                                  jTextArea1.append(att_kosong+"\n"+mtd_kosong+batas);
+                                 }
+                                
+                           }
+                                
 			}
 	     }
+                String total_atribut=String.valueOf("Attribute Total Parent= "+atribut_parent);
+                
+                jTextArea4.append(total_atribut);
 	  }
-       }
-   }
+}//Tutup Kurung Method showopendialog
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -270,17 +284,15 @@ public class NewJFrame extends javax.swing.JFrame
         jScrollPane3 = new javax.swing.JScrollPane();
         jTextArea3 = new javax.swing.JTextArea();
         jLabel4 = new javax.swing.JLabel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTextArea4 = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jButton1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jButton1.setText("jButton1");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) 
-            {
-            	jTextArea1.setText("");
-            	jTextArea2.setText("");
-            	jTextArea3.setText("");
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
@@ -411,6 +423,10 @@ public class NewJFrame extends javax.swing.JFrame
                 .addContainerGap())
         );
 
+        jTextArea4.setColumns(20);
+        jTextArea4.setRows(5);
+        jScrollPane4.setViewportView(jTextArea4);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -421,29 +437,36 @@ public class NewJFrame extends javax.swing.JFrame
                         .addGap(46, 46, 46)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(62, 62, 62)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(71, 71, 71)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(71, 71, 71)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(325, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(155, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(34, 34, 34)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(66, 66, 66))
             .addGroup(layout.createSequentialGroup()
                 .addGap(25, 25, 25)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(27, 27, 27)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(47, 47, 47)
+                        .addGap(107, 107, 107)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
@@ -525,9 +548,11 @@ public class NewJFrame extends javax.swing.JFrame
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextArea jTextArea3;
+    private javax.swing.JTextArea jTextArea4;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }
