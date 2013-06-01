@@ -44,7 +44,8 @@ public class NewJFrame extends javax.swing.JFrame
     int a=0;
     String files;
     //target file
-    String target = "D:/File Kuliah/Skripsi & proposal/Revisi";
+    String target = "E:/File Skripsi/program/check1/build/classes/browse/";
+    
     JFileChooser fileChooser = new JFileChooser();
     
     
@@ -66,15 +67,27 @@ public class NewJFrame extends javax.swing.JFrame
                 File[] ll=selectedFile.listFiles();
                 System.out.println("Selected file: " + selectedFile.getAbsolutePath());
                 jTextField1.setText(selectedFile.getAbsolutePath());
+                /*for (int i = 0; i < ll.length; i++) 
+                {
+                    if (ll[i].isFile()) 
+                    {
+                        files = ll[i].getName();
+                        File source = new File(ll[i].getPath());
+                        File destination = new File(target + files);
+                        try{
+                        FileUtils.copyFile(source, destination);
+                        
+                        }catch(Exception aa){
+                            System.out.println("salah");
+                        }
+                        
+                    }
+                }*/
         	for (int i = 0; i < ll.length; i++) 
                 {
                     if (ll[i].isFile()) 
                     {
                         files = ll[i].getName();
-                        
-                        double filesize = files.length();
-                        double filesizeInKB = filesize / 1024;
-                        double fileinbyte = filesizeInKB/ 1024;
                         
                         //jTextArea3.append(files+"\t"+filesizeInKB+" KB\n");
                            if (files.endsWith(".class"))
@@ -83,9 +96,6 @@ public class NewJFrame extends javax.swing.JFrame
                                 String nama=st.nextToken();
                                 
                                 System.out.println();
-                                System.out.println("Nama Kelas: "+nama);
-                                //System.out.println("Size of File is: "+nama +" "+filesizeInKB + " KB");
-                                //System.out.println("Size of File is: "+nama +" "+fileinbyte + " KB");
                                 jTextArea1.append("Nama Kelas = "+nama + "\n");
                                 
                                 try
@@ -155,17 +165,20 @@ public class NewJFrame extends javax.swing.JFrame
                                 
                                 Field[] fields2 = cls2.getDeclaredFields();
                                 
+                                int con=0;
                                 for (Field field : fields2) 
                                 {
+                                    
                                     if (field.toString().contains("private"))
                                         {
                                             continue;
                                             //jTextArea2.append("INI PRIVATE");
                                         }
+                                    con++;
                                     jTextArea2.append("Nama Attribute yang diwariskan= "+field.getName()+"\n");
                                     
                                  }
-                                jTextArea2.append("Jumlah Attribut Yang diwariskan = "+fields2.length+"\n");
+                                jTextArea2.append("Jumlah Attribut Yang diwariskan = "+con+"\n");
                                 
                                 //list method kelas nenek moyang
                                 for (int k=0;k<methlist3.length; k++)

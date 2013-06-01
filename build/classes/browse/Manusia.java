@@ -16,16 +16,11 @@ public class Manusia {
 	protected Object NIK;
 	protected Object nama;
 	protected Object JK;
-        private String al;
 	public void set_manusia_detail() {
 	
 	}
 	
 	protected void cetak_manusia() {
-	
-	}
-        
-        private void coba_manusia() {
 	
 	}
 }

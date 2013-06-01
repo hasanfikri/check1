@@ -17,9 +17,4 @@ public class Pegawai extends Manusia {
 	protected String Status;
 	protected Object Jabatan;
 	protected Object Gaji;
-        private String pekerjaan;
-        
-        private void ctk(){
-            
-        }
 }

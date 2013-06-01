@@ -14,7 +14,6 @@
 
 public class Fakultas extends Pegawai 
 {
-    
 	public void rk()
 	{
 	}

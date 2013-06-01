@@ -15,5 +15,4 @@
 public class Mahasiswa extends Manusia {
 	protected Object NPM;
 	protected Object Status;
-        private int joss;
 }
