@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -42,13 +43,15 @@ public class NewJFrame extends javax.swing.JFrame
     int Mcount=0, MthdLen=0, var=0;
     int mmod=0, mlen=0, jumtemp;
     int a=0;
-    String files;
+    String files; 
+    String laporan = "laporan.txt";
     //target file
-    String target = "E:/File Skripsi/program/check1/src/browse/";
+    String target = "E:/File Skripsi/program/check1/build/classes/";
     
     JFileChooser fileChooser = new JFileChooser();
     
-    
+    FileOutputStream tulis;
+
     File selectedFile;
     
     public NewJFrame() 
@@ -58,205 +61,171 @@ public class NewJFrame extends javax.swing.JFrame
     }
 private void showOpenFileDialog() 
 {
-    	fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int result = fileChooser.showOpenDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) 
-            {
-                selectedFile = fileChooser.getSelectedFile();
-                File[] ll=selectedFile.listFiles();
-                System.out.println("Selected file: " + selectedFile.getAbsolutePath());
-                jTextField1.setText(selectedFile.getAbsolutePath());
+    fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    int result = fileChooser.showOpenDialog(this);
+    if (result == JFileChooser.APPROVE_OPTION) 
+    {
+        selectedFile = fileChooser.getSelectedFile();
+        File[] ll=selectedFile.listFiles();
+        System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+        jTextField1.setText(selectedFile.getAbsolutePath());
+
+        //Copy File
+        int method_parent = 0;
+        int method_local=0;
+        int atr_parent = 0;
+        int atr_local=0;
                 
-                //Copy File
-                int atribut_parent = 0;
-                for (int i = 0; i < ll.length; i++) 
+        for (int i = 0; i < ll.length; i++) 
+        {
+            if (ll[i].isFile()) 
+            {
+                files = ll[i].getName();
+                File source = new File(ll[i].getPath());
+                File destination = new File(target + files);
+                try
                 {
-                    if (ll[i].isFile()) 
+                    FileUtils.copyFile(source, destination);
+                }
+                catch(Exception aa){
+                    System.out.println("salah");
+                }
+                        
+             }
+          }
+        
+        for (int i = 0; i < ll.length; i++) 
+        {
+            if (ll[i].isFile()) 
+            {
+                files = ll[i].getName();
+                if (files.endsWith(".class"))
+                {
+                    StringTokenizer st=new StringTokenizer(files, ".");
+                    String nama=st.nextToken();
+
+                    System.out.println();
+                    jTextArea1.append("Nama Kelas = "+nama + "\n");
+                    
+                    //Deklarasi pencarian kelas
+                    Class cls = null;
+                    Class<?> cls2 = null;
+                    Class<?> cls3 = null;
+                    Class<?> cls4 = null;
+                    Class<?> cls5 = null;
+                    Class<?> cls6 = null;
+                    Class<?> cls7 = null;
+                    Class<?> cls8 = null;
+                    Class<?> cls9 = null;
+                    Class<?> cls10 = null;
+                    Class<?> clspar = null;
+                    
+ 
+                    //kel
+                    try
                     {
-                        files = ll[i].getName();
-                        File source = new File(ll[i].getPath());
-                        File destination = new File(target + files);
-                        try
-                        {
-                            FileUtils.copyFile(source, destination);
-	                }
-                        catch(Exception aa){
-                            System.out.println("salah");
+                        String m1="";
+                        cls = Class.forName(nama);
+                        Method methlist[]= cls.getDeclaredMethods();
+                        method_local = method_local + methlist.length;
+                        for (int n = 0; n < methlist.length;n++)
+                        {  
+                            Method m = methlist[n];
+                            //Memfilter method yng mengandung string "java."
+                            if (m.toString().contains("java."))
+                            {
+                               continue;
+                            }
+                            m1=m1+m.getName()+", ";
                         }
                         
-                    }
-                }
-        	for (int i = 0; i < ll.length; i++) 
-                {
-                    if (ll[i].isFile()) 
-                    {
-                        files = ll[i].getName();
+                        jTextArea1.append("Nama Method = " + m1+"\n");
+                        jTextArea1.append("Jumlah Method = " + methlist.length+"\n");
+
+                        Field[] fields = cls.getDeclaredFields();
+                        int att_1=0;
+                        for (Field field : fields) 
+                        {
+                            //Cetak Nama Attribute Kelas Lokal
+                            att_1++;
+                            jTextArea1.append("Nama Attribute = "+field.getName()+"\n");
+                        }
                         
-                        //jTextArea3.append(files+"\t"+filesizeInKB+" KB\n");
-                           if (files.endsWith(".class"))
-                           {
-                                StringTokenizer st=new StringTokenizer(files, ".");
-                                String nama=st.nextToken();
-                                
-                                System.out.println();
-                                jTextArea1.append("Nama Kelas = "+nama + "\n");
-                                
-                                Class cls = null;
-                                Class<?> cls2 = null;
-                                Class<?> cls3 = null;
-                                try
-                                {
-                                    String m1="";
-                                    
-                                    
-                                    cls = Class.forName(nama);
-                                    Method methlist[]= cls.getDeclaredMethods();
-                                    for (int n = 0; n < methlist.length;n++)
-                                    {  
-                                        Method m = methlist[n];
-                                        //Memfilter method yng mengandung string "java."
-                                        if (m.toString().contains("java."))
-                                        {
-                                           continue;
-                                        }
-                                        m1=m1+m.getName()+", ";
-                                    }
-                                    jTextArea1.append("Nama Method = " + m1+"\n");
-                                    jTextArea1.append("Jumlah Method = " + methlist.length+"\n");
-
-                                    Field[] fields = cls.getDeclaredFields();
-                                    int att_1=0;
-                                    for (Field field : fields) 
-                                    {
-                                            //Cetak Nama Attribute Kelas Lokal
-                                            att_1++;
-                                            jTextArea1.append("Nama Attribute = "+field.getName()+"\n");
-                                    }
-                                    jTextArea1.append("Jumlah Attribut = "+fields.length+"\n");   
-                                    jTextArea1.append(batas);
-                                }
-                                catch (Exception e) 
-                                {
-                                   jTextArea1.append(att_kosong+"\n"+mtd_kosong+batas);
-                                } 
-                                
-                                
-                                try
-                                {
-                                    String m2a="";
-                                    cls2 = cls.getSuperclass();
-                                    Method methlist2[]= cls2.getDeclaredMethods();
-                                    atribut_parent = atribut_parent + methlist2.length;
-                                    for (int j=0;j<methlist2.length; j++)
-                                    {
-                                        Method m2 = methlist2[j];
-                                        //Memfilter method yng mengandung string "private."
-                                        if (m2.toString().contains("private"))
-                                        {
-                                            continue;
-                                        }
-                                        m2a=m2a+(m2.getName()+", ");
-                                    }   
-                                    if(cls2.getName().contains("java.lang.Object"))
-                                    {
-                                        
-                                    }
-                                    else
-                                    jTextArea2.append("Nama Super Kelas dari "+cls.getName() +" adalah "+cls2.getName()+"\n");
-
-                                    Field[] fields2 = cls2.getDeclaredFields();
-                                    int con=0;
-                                    for (Field field : fields2) 
-                                    {
-                                        if (field.toString().contains("private"))
-                                            {
-                                                continue;
-                                            }
-                                        con++;
-                                        jTextArea2.append("Nama Attribute yang diwariskan= "+field.getName()+"\n");
-                                    } 
-                                    
-                                    if(cls2.getName().contains("java.lang.Object"))
-                                    {
-                                        continue;
-                                    }
-                                    
-                                    
-                                    jTextArea2.append("Jumlah Method Yang Di wariskan = " + methlist2.length+"\n");
-                                    jTextArea2.append("Nama Method Yang Di wariskan = " + m2a+"\n");
-                                    jTextArea2.append("Jumlah Attribut Yang diwariskan = "+con+"\n");
-                                    jTextArea2.append(batas);
-                                
-                                }
-                                catch (Exception e) 
-                                {
-                                jTextArea2.append(att_kosong+"\n"+mtd_kosong+batas);
-                                
-                                
-                                } 
-                                
-                                try
-                                {
-                                    String m3a="";
-                                    cls3=cls2.getSuperclass();
-                                    
-                                    if(cls3.getName().contains("java.lang.Object"))
-                                    {
-                                        continue;
-                                    }
-                                    else
-                                    jTextArea3.append("Nama Super Kelas dari "+cls2.getName() +" adalah "+cls3.getName()+"\n");
-                                    Method methlist3[]= cls3.getDeclaredMethods();
-                                    atribut_parent = atribut_parent + methlist3.length;
-                                    for (int k=0;k<methlist3.length; k++)
-                                    {
-                                        Method m3 = methlist3[k];
-                                        if (m3.getName().contains("private"))
-                                        {
-                                           continue;
-                                        }
-                                        else
-                                        {
-                                        m3a=m3a+(m3.getName()+" ");
-                                        }
-                                    }
-                                    
-                                    jTextArea3.append("Nama Method = " + m3a+"\n");
-                                    jTextArea3.append("Jumlah Method = " + methlist3.length+"\n");
-
-                                    Field[] fields3 = cls3.getDeclaredFields();
-                                    int con_3=0;
-                                    for (Field field : fields3) 
-                                    {
-                                    	if (field.toString().contains("private"))
-                                            {
-                                                continue;
-                                            }
-                                            jTextArea3.append("Nama Attribute = "+field.getName()+"\n");
-                                            con_3++;
-                                    }
-                                    jTextArea3.append("Jumlah Attribut Yang diwariskan = "+con_3+"\n");
-                                    jTextArea3.append(batas);
-                                   
-                                    
-                                }
-                                //jTextArea3.append("Nama Attribute Yang diwariskan = "+s3.toString());
-                                
-                                
-                                catch (Exception e) 
-                                 {
-                                  jTextArea1.append(att_kosong+"\n"+mtd_kosong+batas);
-                                 }
-                                
-                           }
-                                
-			}
-	     }
-                String total_atribut=String.valueOf("Attribute Total Parent= "+atribut_parent);
+                        jTextArea1.append("Jumlah Attribut = "+fields.length+"\n");   
+                        jTextArea1.append(batas);
+                    }
+                    catch (Exception e) 
+                    {
+                       jTextArea1.append(att_kosong+"\n"+mtd_kosong+batas);
+                    } 
+                    
+                    clspar=cls.getSuperclass();
+                    for (int c=1; c<=5;c++)
+                    {
                 
-                jTextArea4.append(total_atribut);
-	  }
+                        try
+                        {
+                            String m2a="";
+                            cls2 = clspar;
+                            Method methlist2[]= cls2.getDeclaredMethods();
+                            method_parent = method_parent + methlist2.length;
+                            for (int j=0;j<methlist2.length; j++)
+                            {
+                                Method m2 = methlist2[j];
+                                //Memfilter method yng mengandung string "private."
+                                if (m2.toString().contains("private"))
+                                {
+                                    continue;
+                                }
+                                m2a=m2a+(m2.getName()+", ");
+                            }   
+                            if(cls2.getName().contains("java.lang.Object"))
+                            {
+
+                            }
+                            else
+                            jTextArea2.append("Nama Super Kelas dari "+cls.getName() +" adalah "+cls2.getName()+"\n");
+
+                            Field[] fields2 = cls2.getDeclaredFields();
+                            int con=0;
+                            for (Field field : fields2) 
+                            {
+                                if (field.toString().contains("private"))
+                                    {
+                                        continue;
+                                    }
+                                con++;
+                                jTextArea2.append("Nama Attribute yang diwariskan= "+field.getName()+"\n");
+                            } 
+
+                            if(cls2.getName().contains("java.lang.Object"))
+                            {
+                                continue;
+                            }
+                            jTextArea2.append("Jumlah Method Yang Di wariskan = " + methlist2.length+"\n");
+                            jTextArea2.append("Nama Method Yang Di wariskan = " + m2a+"\n");
+                            jTextArea2.append("Jumlah Attribut Yang diwariskan = "+con+"\n");
+                            jTextArea2.append(batas);
+                        }
+                        catch (Exception e) 
+                        {
+                            jTextArea2.append(att_kosong+"\n"+mtd_kosong+batas);
+                        }
+                       clspar=cls2.getSuperclass();
+                    }
+                    
+                    
+                }// tutup IF menghapus .class
+
+            }// tutup list nama class
+            
+	     }//tutup get jumlah class
+            String total_method_local=String.valueOf("Total Method Local = "+method_local);
+            String total_method=String.valueOf("Total Method Parent= "+method_parent);
+            jTextArea4.append(total_method_local+"\n");
+            jTextArea4.append(total_method+"\n");
+	  }//tutup file chooser
 }//Tutup Kurung Method showopendialog
     /**
      * This method is called from within the constructor to initialize the form.
@@ -286,6 +255,8 @@ private void showOpenFileDialog()
         jLabel4 = new javax.swing.JLabel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTextArea4 = new javax.swing.JTextArea();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jTextPane1 = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -427,6 +398,8 @@ private void showOpenFileDialog()
         jTextArea4.setRows(5);
         jScrollPane4.setViewportView(jTextArea4);
 
+        jScrollPane5.setViewportView(jTextPane1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -440,7 +413,9 @@ private void showOpenFileDialog()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(112, 112, 112)
+                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(71, 71, 71)
@@ -466,7 +441,9 @@ private void showOpenFileDialog()
                         .addGap(27, 27, 27)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(107, 107, 107)
+                        .addGap(16, 16, 16)
+                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
@@ -480,6 +457,8 @@ private void showOpenFileDialog()
         FileUtils.copyFileToDirectory(files, target);
         
     }*/
+    
+    ArrayList<informasi> descs =new ArrayList<>(15);
     
     private void cetak_super_kosong()
     {
@@ -549,10 +528,12 @@ private void showOpenFileDialog()
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextArea jTextArea3;
     private javax.swing.JTextArea jTextArea4;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextPane jTextPane1;
     // End of variables declaration//GEN-END:variables
 }
