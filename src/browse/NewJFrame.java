@@ -387,7 +387,11 @@ protected void proses(){
                     
                 }// tutup IF menghapus .class
 
-            }// tutup list nama classdatapeg[i][2] = String.valueOf(temp.jum_atribut_parent);
+            }
+            else
+                JOptionPane.showMessageDialog(null, "File Java tidak ditemukan");
+                
+                // tutup list nama classdatapeg[i][2] = String.valueOf(temp.jum_atribut_parent);
         isi_tabel();    
 	     }//tutup get jumlah class
 }
@@ -395,7 +399,7 @@ protected void proses(){
 public void isi_tabel()
 {
    // DefaultTableModel tabel = null;
-    String[] judul={"Nama Kelas","Atribut Lokal","Atribut Parent","AIF","AIF EXT"};
+    String[] judul={"Nama Kelas","Atribut Lokal","AIF Ext","Status"};
     //tabel = new DefaultTableModel(judul);
     
     String[][] datapeg = new String[descs.size()][5];
@@ -404,8 +408,7 @@ public void isi_tabel()
         datapeg[i][0] = temp.nama_kelas;
         datapeg[i][1] = String.valueOf(temp.jum_atribut_lokal);
         datapeg[i][2] = String.valueOf(temp.AIF);
-        datapeg[i][3] = String.valueOf(temp.jum_atribut_parent);
-        datapeg[i][4] = String.valueOf(temp.AIF_ext);
+        datapeg[i][3] = String.valueOf(temp.AIF_ext);
         
     }
     tabel = new DefaultTableModel(datapeg,judul);
@@ -596,10 +599,16 @@ public void isi_tabel()
 
         jMenu1.setText("File");
 
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem1.setText("Open");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenuItem1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jMenuItem1KeyPressed(evt);
             }
         });
         jMenu1.add(jMenuItem1);
@@ -772,6 +781,12 @@ public void isi_tabel()
     private void jMenu4MenuCanceled(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu4MenuCanceled
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenu4MenuCanceled
+
+    private void jMenuItem1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jMenuItem1KeyPressed
+        // TODO add your handling code here:
+        //jMenuItem1.setAccelerator(KeyEvent.VK_W, ActionEvent.ALT_MASK + ActionEvent.CTRL_MASK ));
+        
+    }//GEN-LAST:event_jMenuItem1KeyPressed
 
     /**
      * @param args the command line arguments
