@@ -27,13 +27,15 @@ public class Detail_MIF extends javax.swing.JFrame {
     public ArrayList<Informasi> descs =new ArrayList<>(15);
     public String[] judul_tabel_MIF={"Nama Kelas","Atribut Lokal","Method Parent","Hasil","Status"};
     
-    public Detail_MIF(String[][] dataTable) 
+    public Detail_MIF(String[][] dataTable,int a, int b/*ArrayList <Informasi> inf*/) 
     {
         initComponents();
         
     
         tabel_MIF = new DefaultTableModel(dataTable,judul_tabel_MIF);
         jTable1.setModel(tabel_MIF);
+        jTextField1.setText(String.valueOf(a));
+        jTextField2.setText(String.valueOf(b));
      }
 
     /**

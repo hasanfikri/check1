@@ -4,19 +4,29 @@
  */
 package browse;
 //import jav
+import com.jtattoo.plaf.bernstein.BernsteinLookAndFeel;
+import com.jtattoo.plaf.mcwin.McWinLookAndFeel;
 import java.awt.print.PrinterException;
+import java.io.BufferedWriter;
 import org.apache.commons.io.FileUtils;
 import javax.swing.*;
 import java.util.*;
 import java.lang.reflect.*;
 import java.util.StringTokenizer;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import java.lang.String.*;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -36,27 +46,20 @@ public class NewJFrame extends javax.swing.JFrame
     public int total_MIF_diterima;
     public int total_MIF_ditolak;
     public double ukuran;
-    
-    int Mcount=0, MthdLen=0, var=0;
-    int mmod=0, mlen=0, jumtemp;
-    int a=0;
     public String files; 
-    String laporan = "laporan.txt";
+    
     //target file
     String target = "E:/File Skripsi/program/check1/build/classes/";
-    
     JFileChooser fileChooser = new JFileChooser();
-    
+    public String laporan=null;
     FileOutputStream tulis;
 
     File selectedFile;
      File destination;
-    public NewJFrame() 
-    {
+    public NewJFrame(){
         initComponents();
-        
-        
-    }
+        }
+    
 private void showOpenFileDialog(){
     fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
     fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -252,14 +255,16 @@ public void proses(){
                 JOptionPane.showMessageDialog(null, "File Java tidak ditemukan");
             //jTextArea4.append(String.valueOf("TOTAL= "+xx));    
             jTextField2.setText(String.valueOf(total_AIF_diterima));
-            jTextField3.setText(String.valueOf(total_AIF_ditolak-1));
+            jTextField3.setText(String.valueOf(total_AIF_ditolak-total_AIF_diterima));
             jTextField4.setText(String.valueOf(total_MIF_diterima));
-            jTextField5.setText(String.valueOf(total_AIF_ditolak-1));
+            jTextField5.setText(String.valueOf(total_AIF_ditolak-total_MIF_diterima));
                 // tutup list nama classdatapeg[i][2] = String.valueOf(temp.jum_atribut_parent);
         isi_tabel();    
+        
 	     }
         jTextArea4.append(String.valueOf("Jumlah File dalam Direktori"+selectedFile.getAbsolutePath()+": "+nama_file));
         //tutup get jumlah class
+        laporan="Path Project\t\t : "+jTextField1.getText()+"\n"+"Detail Path\t\t : "+jTextArea4.getText()+"\n"+jTextArea1.getText()+"\n"+jTextArea2.getText();
 }// tutup kurung method proses
 
 
@@ -344,6 +349,8 @@ public void isi_tabel()
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -743,6 +750,12 @@ public void isi_tabel()
         });
         jMenu1.add(jMenuItem1);
 
+        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem3.setText("Save");
+        jMenu1.add(jMenuItem3);
+        jMenu1.add(jSeparator1);
+
+        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         jMenuItem2.setText("Exit");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -756,13 +769,13 @@ public void isi_tabel()
         jMenu4.setText("Detail Direktori");
         jMenu4.setEnabled(false);
         jMenu4.addMenuListener(new javax.swing.event.MenuListener() {
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
-            }
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
                 jMenu4MenuCanceled(evt);
             }
             public void menuSelected(javax.swing.event.MenuEvent evt) {
                 jMenu4MenuSelected(evt);
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
             }
         });
         jMenu4.addActionListener(new java.awt.event.ActionListener() {
@@ -775,12 +788,12 @@ public void isi_tabel()
         jMenu2.setText("Detail Atribut Inheritance Factor");
         jMenu2.setEnabled(false);
         jMenu2.addMenuListener(new javax.swing.event.MenuListener() {
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
-            }
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
             }
             public void menuSelected(javax.swing.event.MenuEvent evt) {
                 jMenu2MenuSelected(evt);
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
             }
         });
         jMenu2.addActionListener(new java.awt.event.ActionListener() {
@@ -792,6 +805,15 @@ public void isi_tabel()
 
         jMenu3.setText("Detail Method Inheritance Factor");
         jMenu3.setEnabled(false);
+        jMenu3.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                jMenu3MenuSelected(evt);
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+        });
         jMenu3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenu3ActionPerformed(evt);
@@ -826,7 +848,7 @@ public void isi_tabel()
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
     fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
     int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION){
             selectedFile = fileChooser.getSelectedFile();
@@ -860,26 +882,23 @@ public void isi_tabel()
 
     private void jMenu2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu2ActionPerformed
         // TODO add your handling code here:
-        
-        Detail_AIF cb=new Detail_AIF(data_AIF,descs);
-        cb.setVisible(true);
+        Detail_AIF obj_Detail_AIF=new Detail_AIF(data_AIF,total_AIF_diterima,total_AIF_ditolak-total_AIF_diterima);
+        obj_Detail_AIF.setVisible(true);
        // JOptionPane.showMessageDialog(null, "Maaf form masih dalam perbaikan");
     }//GEN-LAST:event_jMenu2ActionPerformed
 
     private void jMenu3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu3ActionPerformed
         // TODO add your handling code here:
-        JOptionPane.showMessageDialog(null, "Maaf form masih dalam perbaikan");
+        Detail_MIF obj_Detail_MIF=new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima);
+        obj_Detail_MIF.setVisible(true);
     }//GEN-LAST:event_jMenu3ActionPerformed
 
     private void jMenu4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu4ActionPerformed
-        // TODO add your handling code here:
-        
-        //jTextArea4.append("Nama File : "+ll[i].getName()+"\t \t"+ukuran+"\n");
+        // TODO add your handling code here:       
     }//GEN-LAST:event_jMenu4ActionPerformed
 
     private void jMenu4MenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu4MenuSelected
         // TODO add your handling code here:
-        //JOptionPane.showMessageDialog(null, "Nama File : "+files+"\t \t"+ukuran+"\n");
     }//GEN-LAST:event_jMenu4MenuSelected
 
     private void jMenu4MenuCanceled(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu4MenuCanceled
@@ -902,6 +921,7 @@ public void isi_tabel()
         } catch (java.awt.print.PrinterException e) {
             System.err.format("Cannot print %s%n", e.getMessage());
         }
+        
         try{
             boolean com = jTextArea1.print();
             if(com){
@@ -918,20 +938,41 @@ public void isi_tabel()
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
+        
+        
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+        ExtensionFileFilter filter1 = new ExtensionFileFilter("Text Documents", new String[] { "docx", "txt" });
+        fileChooser.setFileFilter(filter1);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        
         int result = fileChooser.showSaveDialog(this);
             if (result == JFileChooser.APPROVE_OPTION){
-                selectedFile = fileChooser.getSelectedFile();
                 
+                File file = fileChooser.getSelectedFile();
+            // save the file.
+            BufferedWriter bw;
+            try {
+                bw = new BufferedWriter(new FileWriter(file));
+                bw.write(laporan);
+                bw.flush();
+            }               
+            catch (IOException e1)
+            {
+                e1.printStackTrace();
             }
+            
+        
+            }else{
+                JOptionPane.showMessageDialog(null, "Gambar Belum Disimpan","Info", JOptionPane.INFORMATION_MESSAGE);
+            }
+                
+            
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jMenu2MenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu2MenuSelected
         // TODO add your handling code here:
-        Detail_AIF cb=new Detail_AIF(data_AIF,descs);
+        Detail_AIF cb = new Detail_AIF(data_AIF,total_AIF_diterima,total_AIF_ditolak-total_AIF_diterima);
         cb.setVisible(true);
-               
     }//GEN-LAST:event_jMenu2MenuSelected
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -946,6 +987,12 @@ public void isi_tabel()
         jTextField4.setText(null);
         jTextField5.setText(null);    
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jMenu3MenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu3MenuSelected
+        // TODO add your handling code here:
+        Detail_MIF obj_Detail_MIF=new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima);
+        obj_Detail_MIF.setVisible(true);
+    }//GEN-LAST:event_jMenu3MenuSelected
 
     /**
      * @param args the command line arguments
@@ -1007,6 +1054,7 @@ public void isi_tabel()
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1018,6 +1066,7 @@ public void isi_tabel()
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTextArea jTextArea1;
@@ -1030,3 +1079,36 @@ public void isi_tabel()
     private javax.swing.JTextField jTextField5;
     // End of variables declaration//GEN-END:variables
 }
+
+/*public void loading(){
+getGlassPane().setVisible(true);
+        
+                new Thread(new Runnable() 
+            {
+
+                public void run() 
+                {
+                    try 
+                    {
+                        Thread.sleep(5000);
+                    } 
+                    catch (InterruptedException ex) 
+                    {
+                        Logger.getLogger(class.getName()).log(Level.SEVERE, null, ex);
+                    } 
+                    finally 
+                    {
+                        getGlassPane().setVisible(false);
+                        
+                            JOptionPane.showMessageDialog(null, "Login Diterima\nSelamat Datang");
+                            
+                            setVisible(false);
+                            new home().setVisible(true);
+                        }
+                        
+                        
+                    }
+                }
+            }
+                    ).start();
+}*/

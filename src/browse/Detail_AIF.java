@@ -4,8 +4,6 @@
  */
 
 package browse;
-import browse.NewJFrame;
-import browse.Informasi;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
@@ -21,24 +19,18 @@ public class Detail_AIF extends javax.swing.JFrame {
      */
     
     DefaultTableModel tabel_AIF;
-    
-    NewJFrame obj_NewJFrame= new NewJFrame();
     public ArrayList<Informasi> descs =new ArrayList<>(15);
     public String[] judul_tabel_AIF={"Nama Kelas","Atribut Lokal","Atribut Parent","Hasil","Status"};
-   
-    public Detail_AIF(String[][] dataTable, ArrayList <Informasi> inf) 
+    
+    public Detail_AIF(String[][] dataTable,int a, int b) 
     {
-        
+       
         initComponents();
-        Informasi desc=new Informasi();
         tabel_AIF = new DefaultTableModel(dataTable,judul_tabel_AIF);
         jTable1.setModel(tabel_AIF);
-        descs.add(desc);
-        desc.jum_atribut_parent= desc.jum_atribut_parent + desc.jum_atribut_lokal;
-        desc.AIF= desc.jum_atribut_parent - desc.jum_atribut_lokal;
-        desc.AIF_ext=desc.AIF/desc.jum_atribut_parent;
-        jTextField1.setText(String.valueOf(desc.AIF_ext));
-       
+        jTextField1.setText(String.valueOf(a));
+        jTextField2.setText(String.valueOf(b));
+        
      }
 
     
