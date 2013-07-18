@@ -44,9 +44,9 @@ public class NewClass {
 				ArrayList<String> colValues = new ArrayList<String>();
 
 				for (int i = 0; i < tbl.getRowCount(); i++)
-					colValues.add((String) tbl.getValueAt(0, i));
+					colValues.add((String) tbl.getValueAt(0, i).toString());
                                 for (int i = 0; i < tbl.getColumnCount(); i++)
-				 	colValues.add((String) tbl.getValueAt(0, i));
+				 	colValues.add((String) tbl.getValueAt(0, i).toString());
 
 				JOptionPane.showMessageDialog(frame, colValues.toString());
 			}

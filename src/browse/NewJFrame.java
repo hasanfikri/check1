@@ -23,6 +23,7 @@ import javax.swing.JOptionPane;
 import java.lang.String.*;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -32,6 +33,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author king
  */
+
 public class NewJFrame extends javax.swing.JFrame 
 {
     DefaultTableModel tabel_AIF,tabel_MIF, detail_tab_AIF,detail_tabel_MIF;
@@ -47,13 +49,20 @@ public class NewJFrame extends javax.swing.JFrame
     public int total_MIF_ditolak;
     public double ukuran;
     public String files; 
-    
+    int fix_AIF;
     //target file
     String target = "E:/File Skripsi/program/check1/build/classes/";
     JFileChooser fileChooser = new JFileChooser();
     public String laporan=null;
     FileOutputStream tulis;
-
+    public double pembilang_AIF=0.0;
+    public double penyebut_AIF=0.0;
+    public double hasil_AIF=0.0;
+    
+    public double pembilang_MIF=0.0;
+    public double penyebut_MIF=0.0;
+    public double hasil_MIF=0.0;
+    
     File selectedFile;
      File destination;
     public NewJFrame(){
@@ -155,7 +164,6 @@ public void proses(){
                             att_1++;
                             jTextArea1.append("Nama Attribute = "+field.getName()+"\n");
                         }
-                        
                         desc.jum_atribut_lokal=att_1;
                         jTextArea1.append("Jumlah Attribut = "+fields.length+"\n");   
                         jTextArea1.append(batas);
@@ -223,6 +231,7 @@ public void proses(){
                     desc.AIF= desc.jum_atribut_parent - desc.jum_atribut_lokal;
                     desc.AIF_ext=desc.AIF/desc.jum_atribut_parent;
                     
+                    
                     //AIF
                     if(desc.AIF_ext<=0.5){
                         desc.status_AIF="Diterima";
@@ -231,10 +240,14 @@ public void proses(){
                     else
                         desc.status_AIF="Ditolak";
                         total_AIF_ditolak++;
+                        
+                    pembilang_AIF+=desc.AIF;
+                    penyebut_AIF+=desc.jum_atribut_parent;
                     
                     desc.jum_method_parent=desc.jum_method_parent + desc.jum_method_lokal;
                     desc.MIF=desc.jum_method_parent - desc.jum_method_lokal;
                     desc.MIF_ext=desc.MIF/desc.jum_method_parent;
+                    
                     
                     //MIF
                     if(desc.MIF_ext<=0.5){
@@ -244,50 +257,60 @@ public void proses(){
                     else
                         desc.status_MIF="Ditolak";
                         total_MIF_ditolak++;
-                    
                         descs.add(desc);
                     
+                    pembilang_MIF+=desc.MIF;
+                    penyebut_MIF+=desc.jum_method_parent;
                     
                 }// tutup IF menghapus .class
+                        //JOptionPane.showMessageDialog(null, "Hasil "+ c);
             
             }
             else
                 JOptionPane.showMessageDialog(null, "File Java tidak ditemukan");
             //jTextArea4.append(String.valueOf("TOTAL= "+xx));    
+            //fix_AIF=att_kos
             jTextField2.setText(String.valueOf(total_AIF_diterima));
             jTextField3.setText(String.valueOf(total_AIF_ditolak-total_AIF_diterima));
             jTextField4.setText(String.valueOf(total_MIF_diterima));
             jTextField5.setText(String.valueOf(total_AIF_ditolak-total_MIF_diterima));
+           // jTextField6.setText(String.valueOf(c));
                 // tutup list nama classdatapeg[i][2] = String.valueOf(temp.jum_atribut_parent);
         isi_tabel();    
+        
         
 	     }
         jTextArea4.append(String.valueOf("Jumlah File dalam Direktori"+selectedFile.getAbsolutePath()+": "+nama_file));
         //tutup get jumlah class
-        laporan="Path Project\t\t : "+jTextField1.getText()+"\n"+"Detail Path\t\t : "+jTextArea4.getText()+"\n"+jTextArea1.getText()+"\n"+jTextArea2.getText();
+        Date dt= new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+        String tgl=sdf.format(dt);
+        //JOptionPane.showMessageDialog(null,"Hasilnya "+ a);
+        laporan="Tanggal Anlisa"+tgl+"\n"+"Path Project\t\t : "+jTextField1.getText()+"\n"+"Detail Path\t\t : "+jTextArea4.getText()+"\n"+jTextArea1.getText()+"\n"+jTextArea2.getText();
 }// tutup kurung method proses
 
 
 public String[][] data_MIF=null;
 public String[][] data_AIF=null;
 
-public void isi_tabel()
-{
-    
+public void isi_tabel(){
     data_AIF = new String[descs.size()][5];
     for(int i=0; i<descs.size(); i++){
         Informasi temp = descs.get(i);
         data_AIF[i][0] = temp.nama_kelas;
         data_AIF[i][1] = String.valueOf(temp.jum_atribut_lokal);
+        
         data_AIF[i][2] = String.valueOf(temp.AIF);
         data_AIF[i][3] = String.valueOf(df.format(temp.AIF_ext));
         data_AIF[i][4] =temp.status_AIF;
+        
     }
     data_MIF = new String[descs.size()][5];
     for(int i=0; i<descs.size(); i++){
         Informasi temp = descs.get(i);
         data_MIF[i][0] = temp.nama_kelas;
         data_MIF[i][1] = String.valueOf(temp.jum_method_lokal);
+        
         data_MIF[i][2] = String.valueOf(temp.MIF);
         data_MIF[i][3] = String.valueOf(df.format(temp.MIF_ext));
         data_MIF[i][4] =temp.status_MIF;
@@ -297,8 +320,9 @@ public void isi_tabel()
     
     tabel_MIF = new DefaultTableModel(data_MIF,judul_tabel_MIF);
     jTable2.setModel(tabel_MIF);
-    
+ 
 }// Tutup Kurung method isi tabel
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -346,6 +370,14 @@ public void isi_tabel()
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jTextField6 = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        jTextField7 = new javax.swing.JTextField();
+        jTextField8 = new javax.swing.JTextField();
+        jTextField9 = new javax.swing.JTextField();
+        jTextField10 = new javax.swing.JTextField();
+        jTextField11 = new javax.swing.JTextField();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -573,6 +605,8 @@ public void isi_tabel()
         jLabel6.setFont(new java.awt.Font("Cambria Math", 0, 20)); // NOI18N
         jLabel6.setText("Total Method Inheritance Factor Extended");
 
+        jTextField2.setEditable(false);
+        jTextField2.setBackground(new java.awt.Color(255, 255, 255));
         jTextField2.setPreferredSize(new java.awt.Dimension(6, 39));
 
         jLabel7.setFont(new java.awt.Font("Cambria Math", 0, 14)); // NOI18N
@@ -581,10 +615,16 @@ public void isi_tabel()
         jLabel8.setFont(new java.awt.Font("Cambria Math", 0, 14)); // NOI18N
         jLabel8.setText("Total AIF");
 
+        jTextField3.setEditable(false);
+        jTextField3.setBackground(new java.awt.Color(255, 255, 255));
         jTextField3.setPreferredSize(new java.awt.Dimension(6, 39));
 
+        jTextField4.setEditable(false);
+        jTextField4.setBackground(new java.awt.Color(255, 255, 255));
         jTextField4.setPreferredSize(new java.awt.Dimension(6, 39));
 
+        jTextField5.setEditable(false);
+        jTextField5.setBackground(new java.awt.Color(255, 255, 255));
         jTextField5.setPreferredSize(new java.awt.Dimension(6, 39));
 
         jLabel11.setFont(new java.awt.Font("Cambria Math", 0, 14)); // NOI18N
@@ -605,35 +645,48 @@ public void isi_tabel()
         jLabel16.setFont(new java.awt.Font("Cambria Math", 0, 14)); // NOI18N
         jLabel16.setText("Diterima");
 
+        jLabel9.setFont(new java.awt.Font("Cambria Math", 0, 14)); // NOI18N
+        jLabel9.setText("Total AIF Extended");
+
+        jTextField6.setEditable(false);
+        jTextField6.setBackground(new java.awt.Color(255, 255, 255));
+        jTextField6.setPreferredSize(new java.awt.Dimension(6, 39));
+
+        jLabel10.setFont(new java.awt.Font("Cambria Math", 0, 14)); // NOI18N
+        jLabel10.setText("Total MIF Extended");
+
+        jTextField7.setEditable(false);
+        jTextField7.setBackground(new java.awt.Color(255, 255, 255));
+        jTextField7.setPreferredSize(new java.awt.Dimension(6, 39));
+
+        jTextField8.setEditable(false);
+        jTextField8.setBackground(new java.awt.Color(255, 255, 255));
+        jTextField8.setPreferredSize(new java.awt.Dimension(6, 39));
+
+        jTextField9.setEditable(false);
+        jTextField9.setBackground(new java.awt.Color(255, 255, 255));
+        jTextField9.setPreferredSize(new java.awt.Dimension(6, 39));
+
+        jTextField10.setEditable(false);
+        jTextField10.setBackground(new java.awt.Color(255, 255, 255));
+        jTextField10.setPreferredSize(new java.awt.Dimension(6, 39));
+
+        jTextField11.setEditable(false);
+        jTextField11.setBackground(new java.awt.Color(255, 255, 255));
+        jTextField11.setPreferredSize(new java.awt.Dimension(6, 39));
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addGap(35, 35, 35)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel14, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel13, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27))
             .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(17, 17, 17)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(29, 29, 29))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)))
-                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.TRAILING))
@@ -642,21 +695,58 @@ public void isi_tabel()
                 .addGap(24, 24, 24))
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(28, 28, 28)
-                        .addComponent(jLabel6))
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(29, 29, 29)
-                        .addComponent(jLabel4)))
+                        .addComponent(jLabel4))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(28, 28, 28)
+                        .addComponent(jLabel6)))
                 .addContainerGap(29, Short.MAX_VALUE))
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(16, 16, 16))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel14)
+                                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(27, 27, 27))))))
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(13, 13, 13))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -664,43 +754,53 @@ public void isi_tabel()
                 .addContainerGap()
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addGap(0, 0, 0)
-                                .addComponent(jLabel11))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGap(24, 24, 24)
-                                .addComponent(jLabel12))))
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel11))
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel8)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(30, 30, 30)
+                        .addGap(24, 24, 24)
+                        .addComponent(jLabel12))
+                    .addComponent(jLabel8)
+                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel9)
+                        .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(14, 14, 14)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jTextField4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextField5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                            .addComponent(jLabel14)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel13)))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel15)
-                        .addGap(0, 0, 0)
-                        .addComponent(jLabel16))
-                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(jPanel4Layout.createSequentialGroup()
-                            .addComponent(jLabel14)
-                            .addGap(0, 0, 0)
-                            .addComponent(jLabel13))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(21, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel16)))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel10))
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
@@ -722,7 +822,7 @@ public void isi_tabel()
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap(12, Short.MAX_VALUE)
+                .addContainerGap(42, Short.MAX_VALUE)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel6Layout.createSequentialGroup()
@@ -731,7 +831,7 @@ public void isi_tabel()
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE))))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addContainerGap(43, Short.MAX_VALUE))
         );
 
         jMenu1.setText("File");
@@ -855,6 +955,7 @@ public void isi_tabel()
             //File[] ll=selectedFile.listFiles();
             System.out.println("Selected file: " + selectedFile.getAbsolutePath());
             jTextField1.setText(selectedFile.getAbsolutePath());
+            
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -864,6 +965,17 @@ public void isi_tabel()
         jMenu2.setEnabled(true);
         jMenu3.setEnabled(true);
         jMenu4.setEnabled(true);
+        hasil_AIF=pembilang_AIF/penyebut_AIF;
+        hasil_MIF=pembilang_MIF/penyebut_MIF;
+                   
+        jTextField6.setText(""+pembilang_AIF);
+        jTextField7.setText(""+penyebut_AIF);
+        jTextField8.setText(String.valueOf(df.format(hasil_AIF)));
+        jTextField9.setText(""+pembilang_MIF);
+        jTextField10.setText(""+penyebut_MIF);
+        jTextField11.setText(String.valueOf(df.format(hasil_MIF)));
+        
+        
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -882,14 +994,14 @@ public void isi_tabel()
 
     private void jMenu2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu2ActionPerformed
         // TODO add your handling code here:
-        Detail_AIF obj_Detail_AIF=new Detail_AIF(data_AIF,total_AIF_diterima,total_AIF_ditolak-total_AIF_diterima);
+        Detail_AIF obj_Detail_AIF=new Detail_AIF(data_AIF,total_AIF_diterima,total_AIF_ditolak-total_AIF_diterima,hasil_AIF);
         obj_Detail_AIF.setVisible(true);
        // JOptionPane.showMessageDialog(null, "Maaf form masih dalam perbaikan");
     }//GEN-LAST:event_jMenu2ActionPerformed
 
     private void jMenu3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu3ActionPerformed
         // TODO add your handling code here:
-        Detail_MIF obj_Detail_MIF=new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima);
+        Detail_MIF obj_Detail_MIF=new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima,hasil_MIF);
         obj_Detail_MIF.setVisible(true);
     }//GEN-LAST:event_jMenu3ActionPerformed
 
@@ -921,27 +1033,12 @@ public void isi_tabel()
         } catch (java.awt.print.PrinterException e) {
             System.err.format("Cannot print %s%n", e.getMessage());
         }
-        
-        try{
-            boolean com = jTextArea1.print();
-            if(com){
-                JOptionPane.showMessageDialog(null,"Print berhasil");
-            }
-                else{
-                JOptionPane.showMessageDialog(null,"Ayoo di print");
-            }
-            
-        }catch (PrinterException e){
-            JOptionPane.showMessageDialog(null,e);
-        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
-        
-        
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-        ExtensionFileFilter filter1 = new ExtensionFileFilter("Text Documents", new String[] { "docx", "txt" });
+        ExtensionFileFilter filter1 = new ExtensionFileFilter("Text Documents", new String[] { ".docx", ".txt" });
         fileChooser.setFileFilter(filter1);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         
@@ -950,20 +1047,18 @@ public void isi_tabel()
                 
                 File file = fileChooser.getSelectedFile();
             // save the file.
-            BufferedWriter bw;
-            try {
+                
+                BufferedWriter bw;
+            try{
                 bw = new BufferedWriter(new FileWriter(file));
                 bw.write(laporan);
                 bw.flush();
             }               
-            catch (IOException e1)
-            {
+            catch (IOException e1){
                 e1.printStackTrace();
             }
-            
-        
             }else{
-                JOptionPane.showMessageDialog(null, "Gambar Belum Disimpan","Info", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Report Belum Disimpan","Info", JOptionPane.INFORMATION_MESSAGE);
             }
                 
             
@@ -971,7 +1066,7 @@ public void isi_tabel()
 
     private void jMenu2MenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu2MenuSelected
         // TODO add your handling code here:
-        Detail_AIF cb = new Detail_AIF(data_AIF,total_AIF_diterima,total_AIF_ditolak-total_AIF_diterima);
+        Detail_AIF cb = new Detail_AIF(data_AIF,total_AIF_diterima,total_AIF_ditolak-total_AIF_diterima,hasil_AIF);
         cb.setVisible(true);
     }//GEN-LAST:event_jMenu2MenuSelected
 
@@ -990,7 +1085,7 @@ public void isi_tabel()
 
     private void jMenu3MenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu3MenuSelected
         // TODO add your handling code here:
-        Detail_MIF obj_Detail_MIF=new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima);
+        Detail_MIF obj_Detail_MIF=new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima,hasil_MIF);
         obj_Detail_MIF.setVisible(true);
     }//GEN-LAST:event_jMenu3MenuSelected
 
@@ -1036,6 +1131,7 @@ public void isi_tabel()
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -1047,6 +1143,7 @@ public void isi_tabel()
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
@@ -1073,10 +1170,16 @@ public void isi_tabel()
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextArea jTextArea4;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField10;
+    private javax.swing.JTextField jTextField11;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
+    private javax.swing.JTextField jTextField6;
+    private javax.swing.JTextField jTextField7;
+    private javax.swing.JTextField jTextField8;
+    private javax.swing.JTextField jTextField9;
     // End of variables declaration//GEN-END:variables
 }
 
