@@ -4,8 +4,18 @@
  */
 
 package skripsi;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -95,6 +105,7 @@ public class Detail_AIF extends javax.swing.JFrame {
         jLabel4.setText("Detail Attribute Inheritance Factor (AIF) Extended");
 
         jButton2.setFont(new java.awt.Font("Cambria Math", 0, 14)); // NOI18N
+        jButton2.setIcon(new javax.swing.ImageIcon("E:\\File Skripsi\\program\\check1\\src\\image\\print-icon.png")); // NOI18N
         jButton2.setText("Print");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -190,16 +201,79 @@ public class Detail_AIF extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-             MessageFormat header = new MessageFormat("Page {0,number,integer}");
-        try {
-            jTable1.print(JTable.PrintMode.FIT_WIDTH, header, null);
-            
-        } catch (java.awt.print.PrinterException e) {
-            System.err.format("Cannot print %s%n", e.getMessage());
+        /*     
+        MessageFormat header = new MessageFormat("Page {0,number,integer}");
+     try{
+            //boolean complete2=jPanel1.printAll(null);
+            boolean complete=jTextField1.print()&&jTable1.print(JTable.PrintMode.FIT_WIDTH, header, null);;
+            if(complete){
+                JOptionPane.showMessageDialog(null,"Done Printer");
+                jTable1.print(JTable.PrintMode.FIT_WIDTH, header, null);
+            }else{
+                JOptionPane.showMessageDialog(null,"Printing !");
+            }
         }
-        
+        catch(PrinterException e){
+            JOptionPane.showMessageDialog(null, e);
+        }
+        */
+        PrinterJob pjob = PrinterJob.getPrinterJob();
+        PageFormat preformat = pjob.defaultPage();
+        preformat.setOrientation(PageFormat.LANDSCAPE);
+        PageFormat postformat = pjob.pageDialog(preformat);
+        //If user does not hit cancel then print.
+        if (preformat != postformat) {
+            //Set print component
+            pjob.setPrintable(new Printer(this), postformat);
+            if (pjob.printDialog()) {
+                try {
+                    pjob.print();
+                } catch (PrinterException ex) {
+                    Logger.getLogger(Detail_AIF.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    public static class Printer implements Printable {
+        final Component comp;
+
+        public Printer(Component comp){
+            this.comp = comp;
+        }
+
+        @Override
+        public int print(Graphics g, PageFormat format, int page_index) 
+                throws PrinterException {
+            if (page_index > 0) {
+                return Printable.NO_SUCH_PAGE;
+            }
+
+            // get the bounds of the component
+            Dimension dim = comp.getSize();
+            double cHeight = dim.getHeight();
+            double cWidth = dim.getWidth();
+
+            // get the bounds of the printable area
+            double pHeight = format.getImageableHeight();
+            double pWidth = format.getImageableWidth();
+
+            double pXStart = format.getImageableX();
+            double pYStart = format.getImageableY();
+
+            double xRatio = pWidth / cWidth;
+            double yRatio = pHeight / cHeight;
+
+
+            Graphics2D g2 = (Graphics2D) g;
+            g2.translate(pXStart, pYStart);
+            g2.scale(xRatio, yRatio);
+            comp.paint(g2);
+
+            return Printable.PAGE_EXISTS;
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
