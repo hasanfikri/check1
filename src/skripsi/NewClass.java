@@ -56,7 +56,7 @@ public class NewClass {
 		}));
 
 		frame.pack();
-		frame.setVisible(true);
+		frame.setViusible(true);
 	}
 	catch (Throwable e)
 	{

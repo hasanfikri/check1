@@ -3,6 +3,14 @@
  * and open the template in the editor.
  */
 package skripsi;
+import com.sun.activation.viewers.TextEditor;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,6 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.Timer;
+import komponen.Kalender;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -21,7 +31,7 @@ import org.apache.commons.io.FileUtils;
  * @author king
  */
 
-public class MOOD extends javax.swing.JFrame 
+public class MOOD extends javax.swing.JFrame implements WindowListener
 {
     DefaultTableModel tabel_AIF,tabel_MIF, detail_tab_AIF,detail_tabel_MIF;
     private DecimalFormat df = new DecimalFormat("###.##");
@@ -54,9 +64,85 @@ public class MOOD extends javax.swing.JFrame
     File selectedFile;
     File destination;
     File[] esteh;
+    JLabel tampil_jam = new JLabel();
     public MOOD(){
         initComponents();
+        addWindowListener(this);
+        TextEditor te = new TextEditor();
+        JLabel tampil_jam2 = new JLabel("Current Time : ");
+        
+        Kalender date = new Kalender();
+        JLabel dt = new JLabel(date.getKalender());
+        dt.setBounds(1200, 10, 180, 25);
+        dt.setForeground(Color.white);
+        dt.setFont(new Font("Arial",Font.PLAIN,12));
+        add(dt);
+        
+        tampil_jam2.setBounds(1000, 10, 180, 25);
+        tampil_jam2.setForeground(Color.white);
+        tampil_jam2.setFont(new Font("Arial",Font.PLAIN,12));
+        add(tampil_jam2);
+        
+        tampil_jam.setFont(new Font("Arial", 1, 12));
+        tampil_jam.setForeground(Color.black);
+        tampil_jam.setBounds(1100, 10, 180, 25);
+        //add(tampil_jam);
+        jPanel6.add(tampil_jam);
+        jPanel6.add(dt);
+        jPanel6.add(tampil_jam2);
+        
+        
+        
+        ActionListener taskPerformer = new ActionListener() {
+          public void actionPerformed(ActionEvent evt) {
+            String nol_jam = "";
+            String nol_menit = "";
+            String nol_detik = "";
+            Date dt = new Date();
+            int nilai_jam = dt.getHours();
+            int nilai_menit = dt.getMinutes();
+            int nilai_detik = dt.getSeconds();
+            if (nilai_jam <= 9) {
+              nol_jam = "0";
+            }
+            if (nilai_menit <= 9) {
+              nol_menit = "0";
+            }
+            if (nilai_detik <= 9) {
+              nol_detik = "0";
+            }
+            String jam = nol_jam + Integer.toString(nilai_jam);
+            String menit = nol_menit + Integer.toString(nilai_menit);
+            String detik = nol_detik + Integer.toString(nilai_detik);
+            tampil_jam.setText(jam+":"+menit+":"+detik);
+          }
+        };
+        new Timer(1000, taskPerformer).start();
+        
         }
+    
+    @Override
+    public void windowClosing(WindowEvent e)
+            {
+                int reply = JOptionPane.showConfirmDialog(null, "Do you want to Exit?", "Exit ", JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION){
+                    System.exit(0);            
+                    }
+                    else{
+                        
+                    }
+            }
+                                
+    @Override
+            public void windowOpened(WindowEvent e){}
+    @Override
+            public void windowClosed(WindowEvent e){}
+    @Override
+            public void windowActivated(WindowEvent e){}
+    @Override
+            public void windowDeactivated(WindowEvent e){}
+            public void windowIconfied(WindowEvent e){}
+            public void windowDeconfied(WindowEvent e){}
 
 
 private void showOpenFileDialog(){
@@ -74,6 +160,7 @@ private void showOpenFileDialog(){
 
     @SuppressWarnings("empty-statement")
     private void proses(){
+    
     ll=selectedFile.listFiles();
     esteh=selectedFile.listFiles();;
         int method_parent = 0;int method_local=0;
@@ -99,6 +186,7 @@ private void showOpenFileDialog(){
              }
           }
         int nama_file=0;
+        
         for (int i = 0; i < ll.length; i++) 
         {
             if (ll[i].isFile()) 
@@ -122,6 +210,7 @@ private void showOpenFileDialog(){
                     Class cls = null;
                     Class<?> cls2 = null;
                     Class<?> clspar = null;
+                    Class<?> clstemp = null;
                     
                     //kelas lokal
                     try{
@@ -161,15 +250,20 @@ private void showOpenFileDialog(){
                     } 
                     
                     //Fungsi Rekursif
-   
-                    clspar=cls.getSuperclass();
                     
-                    for (int c=1; c<=10;c++){
+                    clspar=cls.getSuperclass();
+                    clstemp=clspar.getSuperclass();
+                    int init = 0;
+                    
+                    Class<?> clsanak = null;
+                    
+                    for (int c=1; c<=5;c++){
                         try{
    
                             String m2a="";
                             
                             cls2 = clspar;
+                            
                             //Menghitung Method milik super class
                             if(cls2.getName().contains("java.lang.Object")){
                                 continue;
@@ -183,26 +277,38 @@ private void showOpenFileDialog(){
                             
                             //method_parent = method_parent + methlist2.length;
                             int jumlah_method2=0;
+                            int x=0;
                             double a=0.0,b=0.0;
                             for (int j=0;j<methlist2.length; j++){
                                 
                                 Method m2 = methlist2[j];
                                 //Memfilter method yng mengandung string "private."
-                                if (in_array(cls2.getDeclaredMethods(), m.getName())) {
-                                    continue;
-                                }
-                                //if(m2.getName().equals(m.getName())){
-                                    //continue;
-                                //}
                                 if (m2.toString().contains("private")||m2.toString().contains("abstract")){
+
                                     continue;
                                     //b++;
                                 }
+                                if (in_array(cls.getDeclaredMethods(), m2.getName()) && init == 0) {
+                                   //desc.temp++;
+                                    //x++;
+                                    continue;
+                                }/*if ( init == 0 && in_array(clstemp.getDeclaredMethods(), m2.getName())) {
+                                   //desc.temp++;
+                                    //x++;
+                                    continue;
+                                   
+                                }*/else if (init == 1 && in_array(clsanak.getDeclaredMethods(), m2.getName())) {
+                                   
+                                    continue;
+                                }
+                                
                                 jumlah_method2++;
                                 method_par++;
                                 
                                 m2a=m2a+(m2.getName()+", ");
                             }
+                            init = 1;
+                                //System.out.println(x + " = x");
                                 desc.jum_method_parent= desc.jum_method_parent+jumlah_method2;
                             //Menghitung Attribut milik super class
                             
@@ -228,9 +334,12 @@ private void showOpenFileDialog(){
                         catch (Exception e){
                             jTextArea2.append(att_kosong+"\n"+mtd_kosong+batas);
                         }
+                        
                        clspar=cls2.getSuperclass();
+                       clsanak = cls2;
                     }
                     
+                            
                     desc.jum_method_parent=desc.jum_method_parent + desc.jum_method_lokal;
                     
                     //method khusus dari super kelas
@@ -251,9 +360,9 @@ private void showOpenFileDialog(){
                     
                     else {
                         desc.status_MIF="Ditolak";
-                        total_MIF_ditolak++;
-                    }
                         
+                    }
+                        total_MIF_ditolak++;
                         descs.add(desc);
                     
                     pembilang_MIF+=desc.MIF;
@@ -278,11 +387,11 @@ private void showOpenFileDialog(){
                     penyebut_AIF+=desc.jum_atribut_parent;
                     
                     
-                    
                 }// tutup IF menghapus .class
                         //JOptionPane.showMessageDialog(null, "Hasil "+ c);
             
             }
+            
             else {
                 JOptionPane.showMessageDialog(null, "File Java tidak ditemukan");
             }
@@ -291,13 +400,14 @@ private void showOpenFileDialog(){
             jTextField2.setText(String.valueOf(total_AIF_diterima));
             jTextField3.setText(String.valueOf(total_AIF_ditolak-total_AIF_diterima));
             jTextField4.setText(String.valueOf(total_MIF_diterima));
-            jTextField5.setText(String.valueOf(total_AIF_ditolak-total_MIF_diterima));
+            jTextField5.setText(String.valueOf(total_MIF_ditolak-total_MIF_diterima));
            // jTextField6.setText(String.valueOf(c));
                 // tutup list nama classdatapeg[i][2] = String.valueOf(temp.jum_atribut_parent);
         isi_tabel();    
         
         
 	     }
+        
         jTextArea4.append(String.valueOf("Jumlah File dalam Direktori"+selectedFile.getAbsolutePath()+": "+nama_file));
         //tutup get jumlah class
         Date dt= new Date();
@@ -305,6 +415,7 @@ private void showOpenFileDialog(){
         String tgl=sdf.format(dt);
         //JOptionPane.showMessageDialog(null,"Hasilnya "+ a);
         laporan="Tanggal Anlisa"+tgl+"\n"+"Path Project\t\t : "+jTextField1.getText()+"\n"+"Detail Path\t\t : "+jTextArea4.getText()+"\n"+jTextArea1.getText()+"\n"+jTextArea2.getText();
+        
 }// tutup kurung method proses
 
     private boolean in_array(Method[] haystack, String needle) {
@@ -370,6 +481,7 @@ private void isi_tabel(){
         jScrollPane4 = new javax.swing.JScrollPane();
         jTextArea4 = new javax.swing.JTextArea();
         jLabel5 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
@@ -414,6 +526,8 @@ private void isi_tabel(){
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
+        jMenu2 = new javax.swing.JMenu();
+        jMenuItem7 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -472,6 +586,13 @@ private void isi_tabel(){
         jLabel5.setFont(new java.awt.Font("Cambria Math", 0, 14)); // NOI18N
         jLabel5.setText("Detail Path");
 
+        jButton4.setText("Kesimpulan");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -484,7 +605,8 @@ private void isi_tabel(){
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel5))
+                        .addComponent(jLabel5)
+                        .addGap(18, 18, 18))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
@@ -493,8 +615,9 @@ private void isi_tabel(){
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jButton2)
                             .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton4)
+                        .addGap(45, 45, 45)))
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -522,7 +645,8 @@ private void isi_tabel(){
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(20, 20, 20))))
         );
 
@@ -837,7 +961,7 @@ private void isi_tabel(){
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap(32, Short.MAX_VALUE)
+                .addGap(32, 32, 32)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 666, Short.MAX_VALUE)
                     .addGroup(jPanel6Layout.createSequentialGroup()
@@ -850,8 +974,10 @@ private void isi_tabel(){
         );
 
         jMenu1.setText("File");
+        jMenu1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
         jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jMenuItem1.setIcon(new javax.swing.ImageIcon("E:\\File Skripsi\\program\\check1\\src\\image\\open-file-icon.png")); // NOI18N
         jMenuItem1.setText("Open");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
@@ -867,12 +993,14 @@ private void isi_tabel(){
         jMenu1.add(jMenuItem1);
 
         jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem3.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jMenuItem3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Save-icon.png"))); // NOI18N
         jMenuItem3.setText("Save");
         jMenu1.add(jMenuItem3);
         jMenu1.add(jSeparator1);
 
         jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
+        jMenuItem2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jMenuItem2.setText("Exit");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -885,14 +1013,15 @@ private void isi_tabel(){
 
         jMenu4.setText("MOOD Metrics Suite");
         jMenu4.setEnabled(false);
+        jMenu4.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jMenu4.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
                 jMenu4MenuCanceled(evt);
             }
             public void menuSelected(javax.swing.event.MenuEvent evt) {
                 jMenu4MenuSelected(evt);
-            }
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
             }
         });
         jMenu4.addActionListener(new java.awt.event.ActionListener() {
@@ -901,9 +1030,16 @@ private void isi_tabel(){
             }
         });
 
+        jMenuItem4.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jMenuItem4.setText("View Report");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
         jMenu4.add(jMenuItem4);
 
+        jMenuItem5.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jMenuItem5.setText("Detail Atribut Inheritance Factor");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -912,6 +1048,7 @@ private void isi_tabel(){
         });
         jMenu4.add(jMenuItem5);
 
+        jMenuItem6.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jMenuItem6.setText("Detail Method Inheritance Factor");
         jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -924,13 +1061,14 @@ private void isi_tabel(){
 
         jMenu3.setText("Detail Method Inheritance Factor");
         jMenu3.setEnabled(false);
+        jMenu3.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jMenu3.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
             }
             public void menuSelected(javax.swing.event.MenuEvent evt) {
                 jMenu3MenuSelected(evt);
-            }
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
             }
         });
         jMenu3.addActionListener(new java.awt.event.ActionListener() {
@@ -939,6 +1077,18 @@ private void isi_tabel(){
             }
         });
         jMenuBar1.add(jMenu3);
+
+        jMenu2.setText("About");
+
+        jMenuItem7.setText("About me");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem7);
+
+        jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
 
@@ -988,7 +1138,7 @@ private void isi_tabel(){
         jMenu4.setEnabled(true);
         hasil_AIF=pembilang_AIF/penyebut_AIF;
         //hasil_MIF=pembilang_MIF/penyebut_MIF;           
-        double xx=penyebut_MIF+1.0;
+        double xx=penyebut_MIF+1;
         hasil_MIF=pembilang_MIF/xx;
         jTextField10.setText(""+xx);
         
@@ -996,7 +1146,6 @@ private void isi_tabel(){
         jTextField7.setText(""+penyebut_AIF);
         jTextField8.setText(String.valueOf(df.format(hasil_AIF)));
         jTextField9.setText(""+pembilang_MIF);
-        //jTextField10.setText(""+penyebut_MIF);
         jTextField11.setText(String.valueOf(df.format(hasil_MIF)));
         
         
@@ -1018,7 +1167,7 @@ private void isi_tabel(){
 
     private void jMenu3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu3ActionPerformed
         // TODO add your handling code here:
-        Detail_MIF obj_Detail_MIF=new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima,hasil_MIF);
+        Detail_MIF obj_Detail_MIF=new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima,hasil_MIF,selectedFile.getAbsolutePath());
         obj_Detail_MIF.setVisible(true);
     }//GEN-LAST:event_jMenu3ActionPerformed
 
@@ -1094,21 +1243,54 @@ private void isi_tabel(){
 
     private void jMenu3MenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu3MenuSelected
         // TODO add your handling code here:
-        Detail_MIF obj_Detail_MIF=new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima,hasil_MIF);
+        Detail_MIF obj_Detail_MIF = new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima,hasil_MIF,selectedFile.getAbsolutePath());
         obj_Detail_MIF.setVisible(true);
     }//GEN-LAST:event_jMenu3MenuSelected
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         // TODO add your handling code here:
-        Detail_AIF cb = new Detail_AIF(data_AIF,total_AIF_diterima,total_AIF_ditolak-total_AIF_diterima,hasil_AIF);
+        Detail_AIF cb = new Detail_AIF(data_AIF,total_AIF_diterima,total_AIF_ditolak-total_AIF_diterima,hasil_AIF,selectedFile.getAbsolutePath());
         cb.setVisible(true);
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         // TODO add your handling code here:
-        Detail_MIF obj_Detail_MIF=new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima,hasil_MIF);
+        //Det_MIF obj_Detail_MIF = new Det_MIF(this,true,data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima,hasil_MIF);
+        //obj_Detail_MIF.setVisible(true);
+        Detail_MIF obj_Detail_MIF = new Detail_MIF(data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima,hasil_MIF,selectedFile.getAbsolutePath());
         obj_Detail_MIF.setVisible(true);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        // TODO add your handling code here:
+        
+        report lap= new report(data_AIF,total_AIF_diterima,total_AIF_ditolak-total_AIF_diterima,hasil_AIF,data_MIF,total_MIF_diterima,total_MIF_ditolak-total_MIF_diterima,hasil_MIF);
+        lap.setVisible(true);
+        
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        if(hasil_AIF<=0.5){
+            JOptionPane.showMessageDialog(null, "Maaf AIF diterima");
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Maaf AIF tidak diterima");
+        }
+        if(hasil_MIF<=0.5){
+            JOptionPane.showMessageDialog(null, "Maaf MIF diterima");
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Maaf MIF tidak diterima");
+        }
+        
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+        // TODO add your handling code here:
+        about ab = new about(this, true);
+        ab.setVisible(true);
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1136,6 +1318,7 @@ private void isi_tabel(){
             public void run() {
                 new MOOD().setVisible(true);
                 
+                
             }
         });
     }
@@ -1143,6 +1326,7 @@ private void isi_tabel(){
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -1159,6 +1343,7 @@ private void isi_tabel(){
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
@@ -1168,6 +1353,7 @@ private void isi_tabel(){
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
+    private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1196,6 +1382,20 @@ private void isi_tabel(){
     private javax.swing.JTextField jTextField8;
     private javax.swing.JTextField jTextField9;
     // End of variables declaration//GEN-END:variables
+
+    
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    
 }
 
 /*public void loading(){
